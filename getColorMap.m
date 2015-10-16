@@ -1,17 +1,21 @@
 function cmap = getColorMap()
-% GETCOLORMAP Return customized color map (based on Tango color palette).
+%GETCOLORMAP Return customized color map (based on Tango color palette).
+%   Part of the leaf annotation tool described in [1].
 %
-% Author:  Massimo Minervini
-% Contact: massimo.minervini@imtlucca.it
-% Version: 1.0
-% Date:    26/06/2015
+%   [1] M. Minervini, M. V. Giuffrida, S. A. Tsaftaris, "An interactive tool for semi-automated leaf annotation,"
+%       in Proceedings of the Computer Vision Problems in Plant Phenotyping (CVPPP) Workshop, pp. 6.1–6.13.
+%       BMVA Press, Sep. 2015.
 %
-% Copyright (C) 2015 Pattern Recognition and Image Analysis (PRIAn) Unit,
-% IMT Institute for Advanced Studies, Lucca, Italy.
-% All rights reserved.
+%   Author:  Massimo Minervini
+%   Contact: massimo.minervini@imtlucca.it
+%   Version: 1.0
+%   Date:    26/06/2015
+%
+%   Copyright (C) 2015 Pattern Recognition and Image Analysis (PRIAn) Unit,
+%   IMT Institute for Advanced Studies, Lucca, Italy.
+%   All rights reserved.
 
-cmap = [...
-    0,0,0;
+cmap = [0,0,0; % background
     252,233,79;
     114,159,207;
     239,41,41;

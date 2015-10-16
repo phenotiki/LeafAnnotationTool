@@ -34,7 +34,7 @@ end
 
 %Find image size
 img=im2double(img);
-[X Y Z]=size(img);
+[X, Y, Z]=size(img);
 
 %Error catches
 exitFlag=0;
@@ -74,7 +74,7 @@ if(exitFlag)
 end
 
 %Build graph
-[points edges]=lattice(X,Y);
+[~, edges]=lattice(X,Y);
 
 %Generate weights and Laplacian matrix
 if(Z > 1) %Color images
@@ -108,7 +108,7 @@ end
 probabilities=dirichletboundary(L,seeds(:),boundary);
 
 %Generate mask
-[dummy mask]=max(probabilities,[],2);
+[~, mask]=max(probabilities,[],2);
 mask=labels_present(mask)+label_adjust-1; %Assign original labels to mask
 mask=reshape(mask,[X Y]);
 probabilities=reshape(probabilities,[X Y number_labels]);

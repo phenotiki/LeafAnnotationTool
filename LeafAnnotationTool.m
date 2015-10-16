@@ -1,23 +1,28 @@
 function varargout = LeafAnnotationTool(varargin)
-% LEAFANNOTATIONTOOL MATLAB code for LeafAnnotationTool.fig
+%LEAFANNOTATIONTOOL MATLAB code for LeafAnnotationTool.fig
+%   Part of the leaf annotation tool described in [1].
 %
-% Author:  Mario Valerio Giuffrida
-% Contact: valerio.giuffrida@imtlucca.it
-% Version: 1.0
-% Date:    26/06/2015
+%   [1] M. Minervini, M. V. Giuffrida, S. A. Tsaftaris, "An interactive tool for semi-automated leaf annotation,"
+%       in Proceedings of the Computer Vision Problems in Plant Phenotyping (CVPPP) Workshop, pp. 6.1–6.13.
+%       BMVA Press, Sep. 2015.
 %
-% Copyright (C) 2015 Pattern Recognition and Image Analysis (PRIAn) Unit,
-% IMT Institute for Advanced Studies, Lucca, Italy.
-% All rights reserved.
+%   Author:  Mario Valerio Giuffrida
+%   Contact: valerio.giuffrida@imtlucca.it
+%   Version: 1.0
+%   Date:    26/06/2015
+%
+%   Copyright (C) 2015 Pattern Recognition and Image Analysis (PRIAn) Unit,
+%   IMT Institute for Advanced Studies, Lucca, Italy.
+%   All rights reserved.
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
 gui_State = struct('gui_Name',       mfilename, ...
-                   'gui_Singleton',  gui_Singleton, ...
-                   'gui_OpeningFcn', @LeafAnnotationTool_OpeningFcn, ...
-                   'gui_OutputFcn',  @LeafAnnotationTool_OutputFcn, ...
-                   'gui_LayoutFcn',  [] , ...
-                   'gui_Callback',   []);
+    'gui_Singleton',  gui_Singleton, ...
+    'gui_OpeningFcn', @LeafAnnotationTool_OpeningFcn, ...
+    'gui_OutputFcn',  @LeafAnnotationTool_OutputFcn, ...
+    'gui_LayoutFcn',  [] , ...
+    'gui_Callback',   []);
 if nargin && ischar(varargin{1})
     gui_State.gui_Callback = str2func(varargin{1});
 end
@@ -56,7 +61,7 @@ resetLabels(handles);
 addpath('graphAnalysisToolbox-1.0');
 
 % --- Outputs from this function are returned to the command line.
-function varargout = LeafAnnotationTool_OutputFcn(hObject, eventdata, handles) 
+function varargout = LeafAnnotationTool_OutputFcn(hObject, eventdata, handles)
 % varargout  cell array for returning output args (see VARARGOUT);
 % hObject    handle to figure
 % eventdata  reserved - to be defined in a future version of MATLAB
@@ -73,8 +78,12 @@ function btnLoad_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 
 global LastPath;
-[fname, path] = uigetfile({'*.png';'*.jpg';'*.bmp'},'Open an Image File',LastPath);
-LastPath = path;
+[fname, path] = uigetfile({'*.jpg;*.tif;*.png;*.gif','All Image Files';'*.*','All Files'},'Open an Image File',LastPath);
+if isequal(fname,0)
+    return
+else
+    LastPath = path;
+end
 
 openImage(handles,path,fname);
 
@@ -113,17 +122,22 @@ btnCancel_Callback(handles.btnCancel,[],handles);
 
 if (isempty(Annotations))
     global LastPath;
-    [fname, path] = uigetfile({'*.png';'*.jpg';'*.bmp'},'Open an Image File',LastPath);
-    LastPath = path;
-
+    [fname, path] = uigetfile({'*.png';'*.bmp'},'Open an Image File',LastPath);
+    if isequal(fname,0)
+        return
+    else
+        LastPath = path;
+    end
+    
     global Mask;
     global WorkingImage;
     global RawImage;
-
+    
     Mask = imread(fullfile(path,fname));
-    WorkingImage = RawImage .* repmat(Mask,1,1,3);
-
+    WorkingImage = RawImage.*repmat(Mask,1,1,3);
     updateWorkingImage(handles);
+    
+    increaseCurrentLabel(handles);
 end
 
 % --- Executes on button press in rdnDot.
@@ -156,8 +170,6 @@ Annotations{end+1,1} = h;
 l=increaseCurrentLabel(handles);
 updateLastScribble(l);
 
-
-
 % --- Executes on button press in rdnFreehand.
 function rdnFreehand_Callback(hObject, eventdata, handles)
 % hObject    handle to rdnFreehand (see GCBO)
@@ -180,6 +192,7 @@ set(hObject.rdnDot,'Enable',status)
 set(hObject.rdnLine,'Enable',status)
 set(hObject.rdnFreehand,'Enable',status)
 set(hObject.btnLoadAnnotations,'Enable',status);
+set(hObject.btnSegment,'Enable',status);
 
 
 % --- Executes on button press in btnSegment.
@@ -221,7 +234,10 @@ coords = cat(1,coords,[J, I]);
 labels = [labels;zeros(length(idx),1)];
 
 beta = get(handles.sldBeta,'Value');
-[mask, probabilities] = grady(WorkingImage,Mask,coords,labels,beta);
+tStart = tic;
+[mask, ~] = grady(WorkingImage,Mask,coords,labels,beta);
+%fprintf('Random walker done! -- Elapsed time (s): %.2f\n', toc(tStart))
+set(handles.textElapsedTime,'String',['Elapsed time (s): ' num2str(toc(tStart),'%.1f')]);
 
 Result = uint8(mask);
 updateResults(handles);
@@ -242,7 +258,7 @@ global WorkingImage;
 
 if (getVisualizationMode(handles)==1)
     cmap = getColorMap();
-
+    
     imshow(Result,cmap,'Parent',handles.axes2);
 else
     [imgMasks,segOutline,imgMarkup]=segoutput(im2double(WorkingImage),im2double(Result));
@@ -279,12 +295,12 @@ global Annotations;
 
 if (~isempty(Annotations))
     btn = questdlg('Do you want to cancel all the annotation''s hint?','title','Are you sure?');
-
+    
     if (strcmp(btn,'Yes'))
         for i=1:size(Annotations,1)
             Annotations{i,1}.delete;
         end
-
+        
         Annotations = cell(0,2);
     end
 end
@@ -299,7 +315,11 @@ global LastPath;
 global Annotations;
 
 [fname, path] = uigetfile({'*.png';'*.jpg';'*.bmp'},'Open an Image File',LastPath);
-LastPath = path;
+if isequal(fname,0)
+    return
+else
+    LastPath = path;
+end
 
 I = imread(fullfile(path,fname));
 
@@ -327,11 +347,8 @@ end
 
 function r = getIndexedColor(i)
 colors = getColorMap(); colors = colors(2:end,:);
-
-t =mod(i-1,size(colors,1))+1;
-r = colors( t ,:);
-
-
+t = mod(i-1,size(colors,1))+1;
+r = colors(t,:);
 
 function txtLabel_Callback(hObject, eventdata, handles)
 % hObject    handle to txtLabel (see GCBO)
@@ -341,13 +358,12 @@ function txtLabel_Callback(hObject, eventdata, handles)
 % Hints: get(hObject,'String') returns contents of txtLabel as text
 %        str2double(get(hObject,'String')) returns contents of txtLabel as a double
 
-updateLastScribble( str2num(get(handles.txtLabel,'string')));
+updateLastScribble(str2double(get(handles.txtLabel,'string')));
 
-function updateLastScribble (l)
+function updateLastScribble(l)
 global Annotations;
 Annotations{end,2} = l;
-
-Annotations{end,1}.setColor( getIndexedColor(l) );
+Annotations{end,1}.setColor(getIndexedColor(l));
 
 % --- Executes during object creation, after setting all properties.
 function txtLabel_CreateFcn(hObject, eventdata, handles)
@@ -363,14 +379,12 @@ end
 
 
 function l = getCurrentLabel(handles)
-l = str2num(  get(handles.txtLabel,'string')  );
+l = str2double(get(handles.txtLabel,'string'));
 
 function l = increaseCurrentLabel(handles)
 global LabelCount;
 LabelCount = LabelCount+1;
-
 l = LabelCount;
-
 set(handles.txtLabel,'string',num2str(l));
 
 
@@ -383,8 +397,7 @@ function sldBeta_Callback(hObject, eventdata, handles)
 % Hints: get(hObject,'Value') returns position of slider
 %        get(hObject,'Min') and get(hObject,'Max') to determine range of slider
 
-set(handles.txtBeta,'String',num2str( get(handles.sldBeta,'Value'), '%.1f' ));
-
+set(handles.txtBeta,'String',num2str(round(get(handles.sldBeta,'Value')),'%d'));
 
 % --- Executes during object creation, after setting all properties.
 function sldBeta_CreateFcn(hObject, eventdata, handles)
@@ -397,8 +410,6 @@ if isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColo
     set(hObject,'BackgroundColor',[.9 .9 .9]);
 end
 
-
-
 function txtBeta_Callback(hObject, eventdata, handles)
 % hObject    handle to txtBeta (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
@@ -406,7 +417,19 @@ function txtBeta_Callback(hObject, eventdata, handles)
 
 % Hints: get(hObject,'String') returns contents of txtBeta as text
 %        str2double(get(hObject,'String')) returns contents of txtBeta as a double
-set(handles.sldBeta,'Value',str2double( get(handles.txtBeta,'String') ));
+input = str2double(get(handles.txtBeta,'String'));
+if isnan(input)
+    errordlg('You must enter a numeric value','Invalid Input','modal')
+    uicontrol(hObject)
+    return
+elseif input < get(handles.sldBeta,'Min') || input > get(handles.sldBeta,'Max')
+    errordlg(['Beta must be in the range ' num2str(get(handles.sldBeta,'Min'),'%d') '..' num2str(get(handles.sldBeta,'Max'),'%d')],'Invalid Input','modal')
+    uicontrol(hObject)
+    return
+else
+    %display(input);
+    set(handles.sldBeta,'Value',input);
+end
 
 % --- Executes during object creation, after setting all properties.
 function txtBeta_CreateFcn(hObject, eventdata, handles)
@@ -432,17 +455,18 @@ global LastPath;
 map = getColorMap();
 
 if (numel(Result) > 0)
-    [fname, path] = uiputfile({'*.png'},'Save Segmentation',LastPath);
-    
-    if (~isempty(fname))
-        imwrite(uint8(Result),map,fullfile(path,fname));
+    [fname, path] = uiputfile('*.png','Save Segmentation',LastPath);
+    if ~isequal(fname,0) && ~isequal(path,0)
+        if (~isempty(fname))
+            imwrite(uint8(Result),map,fullfile(path,fname));
+        end
     end
 end
 
 
 % --- Executes when selected object is changed in uipanel9.
 function uipanel9_SelectionChangeFcn(hObject, eventdata, handles)
-% hObject    handle to the selected object in uipanel9 
+% hObject    handle to the selected object in uipanel9
 % eventdata  structure with the following fields (see UIBUTTONGROUP)
 %	EventName: string 'SelectionChanged' (read only)
 %	OldValue: handle of the previously selected object or empty if none was selected
@@ -454,6 +478,10 @@ updateResults(handles);
 
 function resetLabels(handles)
 global LabelCount;
-
-LabelCount = 0;
-set(handles.txtLabel,'String','1');
+global Mask
+if isempty(Mask)
+    LabelCount = 0;
+else
+    LabelCount = 1;
+end
+set(handles.txtLabel,'String','0');
