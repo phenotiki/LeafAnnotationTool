@@ -21,8 +21,8 @@ function [M, P] = grady(I, I_fg, seeds, labels, beta)
 %
 %   Author(s): Massimo Minervini
 %   Contact:   massimo.minervini@imtlucca.it
-%   Version:   1.0
-%   Date:      26/06/2015
+%   Version:   1.1
+%   Date:      19/10/2015
 %
 %   Copyright (C) 2015 Pattern Recognition and Image Analysis (PRIAn) Unit,
 %   IMT Institute for Advanced Studies, Lucca, Italy.
