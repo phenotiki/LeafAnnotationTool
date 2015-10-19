@@ -11,7 +11,7 @@ function [M, P] = grady(I, I_fg, seeds, labels, beta)
 %   Input:
 %           I - Input RGB image
 %        I_fg - Foreground/background segmentation mask (if not available, use [])
-%       seeds - Input seed locations
+%       seeds - Seed locations
 %      labels - Integer object labels for each seed
 %        beta - Weighting parameter
 %

@@ -6,8 +6,8 @@ function varargout = LeafAnnotationTool(varargin)
 %       in Proceedings of the Computer Vision Problems in Plant Phenotyping (CVPPP) Workshop, pp. 6.1–6.13.
 %       BMVA Press, Sep. 2015.
 %
-%   Author(s): Mario Valerio Giuffrida, Massimo Minervini
-%   Contact:   valerio.giuffrida@imtlucca.it, massimo.minervini@imtlucca.it
+%   Author(s): Massimo Minervini, Mario Valerio Giuffrida
+%   Contact:   massimo.minervini@imtlucca.it
 %   Version:   1.1
 %   Date:      19/10/2015
 %
@@ -91,6 +91,13 @@ openImage(handles,path,fname);
 global Annotations;
 Annotations = cell(0,2);
 resetLabels(handles);
+global Result;
+Result = [];
+colorbar(handles.axes2,'off')
+delete(allchild(handles.axes2)) %cla(handles.axes2)
+set(handles.btnSave,'Enable','off');
+set(handles.rdnContours,'Enable','off');
+set(handles.rdnLabels,'Enable','off');
 end
 
 
@@ -109,8 +116,6 @@ global WorkingImage;
 imshow(WorkingImage,'Parent',handles.axes1);
 % hold(handles.axes1,'on');
 % hold(handles.axes1,'off');
-%delete(get(handles.axes2,'Children'))
-cla(handles.axes2)
 end
 
 
@@ -121,6 +126,9 @@ set(hObject.rdnLine,'Enable',status)
 set(hObject.rdnFreehand,'Enable',status)
 set(hObject.btnLoadAnnotations,'Enable',status);
 set(hObject.btnSegment,'Enable',status);
+set(hObject.btnSave,'Enable',status);
+set(hObject.rdnContours,'Enable',status);
+set(hObject.rdnLabels,'Enable',status);
 end
 
 
@@ -236,6 +244,8 @@ Result = uint8(M);
 set(handles.textElapsedTime,'String',['Elapsed time (s): ' num2str(toc(tStart),'%.1f')]);
 updateResults(handles);
 set(handles.btnSave,'Enable','on');
+set(handles.rdnContours,'Enable','on');
+set(handles.rdnLabels,'Enable','on');
 end
 
 
