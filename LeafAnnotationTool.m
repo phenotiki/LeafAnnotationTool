@@ -218,29 +218,6 @@ for i = 1:size(Annotations,1)
             coordinates = [coordinates; x y];
         end
         seeds = [seeds; coordinates];
-        
-        %         figure, imshow(WorkingImage)
-        %         hold on
-        %         plot(coordinates(:,1),coordinates(:,2))
-        
-        %         temp = false(size(img_label)); % leaf mask
-        %         temp(img_label == i) = true;
-        %         p1x = lst(1,1);
-        %         p1y = lst(1,2);
-        %         p2x = lst(2,1);
-        %         p2y = lst(2,2);
-        %         m = (p2x-p1x)/(p2y-p1y);
-        %         b = p2y-m*p2x;
-        %         x = 1:size(temp,2);
-        %         y = 1:size(temp,1);
-        %         coordinates_x = [1:size(img_label,2); round(m*x+b)]';
-        %         if m ~= 0
-        %             coordinates_y = [round((y-b)/m); 1:size(img_label,1)]';
-        %         end
-        %         princ_dir_inside = intersect([coordinates_x; coordinates_y], pixel_coords, 'rows');
-        %         seeds = [seeds; princ_dir_inside(:,1), princ_dir_inside(:,2)];
-        %         %labels = [labels; zeros(size(princ_dir_inside,1),1)+double(i)];
-        
         labels = [labels; repmat(Annotations{i,2},size(coordinates,1),1)];
     end
 end
