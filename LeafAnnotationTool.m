@@ -107,8 +107,10 @@ end
 function updateWorkingImage(handles)
 global WorkingImage;
 imshow(WorkingImage,'Parent',handles.axes1);
-hold(handles.axes1,'on');
-hold(handles.axes1,'off');
+% hold(handles.axes1,'on');
+% hold(handles.axes1,'off');
+%delete(get(handles.axes2,'Children'))
+cla(handles.axes2)
 end
 
 
@@ -256,7 +258,8 @@ if getVisualizationMode(handles) == 1
     pos = get(handles.axes2,'position');
     colorbar(handles.axes2,...
         'Ticks',0:max(Result(:)),...
-        'TickLabels',['BG',cellfun(@num2str,num2cell(0:max(Result(:))),'uniformoutput',0)])
+        'TickDirection','out',...
+        'TickLabels',['BG',cellfun(@num2str,num2cell(1:max(Result(:))),'uniformoutput',0)])
     set(handles.axes2,'position',[pos(1) pos(2) pos(3) pos(4)]);
 else
     [~,~,imgMarkup] = segoutput(im2double(WorkingImage),im2double(Result));
