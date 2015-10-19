@@ -19,10 +19,10 @@ function [M, P] = grady(I, I_fg, seeds, labels, beta)
 %           M - Leaf segmentation mask
 %           P - Probability estimates for each label
 %
-%   Author:  Massimo Minervini
-%   Contact: massimo.minervini@imtlucca.it
-%   Version: 1.0
-%   Date:    26/06/2015
+%   Author(s): Massimo Minervini
+%   Contact:   massimo.minervini@imtlucca.it
+%   Version:   1.0
+%   Date:      26/06/2015
 %
 %   Copyright (C) 2015 Pattern Recognition and Image Analysis (PRIAn) Unit,
 %   IMT Institute for Advanced Studies, Lucca, Italy.
