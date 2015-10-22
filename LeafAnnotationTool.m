@@ -283,7 +283,7 @@ global LabelCount;
 global Mask
 if isempty(Mask)
     LabelCount = 0;
-    set(handles.txtLabel,'String','0');
+    set(handles.txtLabel,'String','BG');
 else
     LabelCount = 1;
     set(handles.txtLabel,'String','1');
@@ -435,7 +435,11 @@ function txtLabel_Callback(hObject, eventdata, handles)
 % Hints: get(hObject,'String') returns contents of txtLabel as text
 %        str2double(get(hObject,'String')) returns contents of txtLabel as a double
 
-updateLastScribble(str2double(get(handles.txtLabel,'string')));
+l = str2double(get(handles.txtLabel,'string'));
+if isnan(l)
+    l = 0;
+end
+updateLastScribble(l);
 end
 
 
