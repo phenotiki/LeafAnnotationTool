@@ -152,7 +152,7 @@ end
 global Mask;
 global WorkingImage;
 global RawImage;
-Mask = imread(fullfile(path,fname));
+Mask = uint8(logical(imread(fullfile(path,fname))));
 WorkingImage = RawImage.*repmat(Mask,1,1,3);
 updateWorkingImage(handles);
 increaseCurrentLabel(handles);
