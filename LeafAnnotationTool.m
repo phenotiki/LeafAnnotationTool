@@ -105,6 +105,7 @@ function openImage(handles,path,fname)
 global RawImage;
 global WorkingImage;
 RawImage = imread(fullfile(path,fname));
+imformats('bmp')
 WorkingImage = RawImage;
 setStatusToButtons(handles,'on');
 updateWorkingImage(handles);
