@@ -8,8 +8,8 @@ function varargout = LeafAnnotationTool(varargin)
 %
 %   Author(s): Massimo Minervini, Mario Valerio Giuffrida
 %   Contact:   massimo.minervini@imtlucca.it
-%   Version:   1.1
-%   Date:      19/10/2015
+%   Version:   1.2
+%   Date:      12/11/2015
 %
 %   Copyright (C) 2015 Pattern Recognition and Image Analysis (PRIAn) Unit,
 %   IMT Institute for Advanced Studies, Lucca, Italy.
@@ -81,13 +81,14 @@ function btnLoad_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 global LastPath;
-[fname, path] = uigetfile({'*.jpg;*.tif;*.png;*.gif','All Image Files';'*.*','All Files'},'Open an Image File',LastPath);
-if isequal(fname,0)
+global LastFName;
+[LastFName, path] = uigetfile({'*.jpg;*.tif;*.png;*.gif','All Image Files';'*.*','All Files'},'Open original image file',LastPath);
+if isequal(LastFName,0)
     return
 else
     LastPath = path;
 end
-openImage(handles,path,fname);
+openImage(handles,path,LastFName);
 global Annotations;
 Annotations = cell(0,2);
 resetLabels(handles);
@@ -96,6 +97,7 @@ Result = [];
 colorbar(handles.axes2,'off')
 delete(allchild(handles.axes2)) %cla(handles.axes2)
 set(handles.btnSave,'Enable','off');
+set(handles.btnCSVArea,'Enable','off');
 set(handles.rdnContours,'Enable','off');
 set(handles.rdnLabels,'Enable','off');
 end
@@ -105,7 +107,7 @@ function openImage(handles,path,fname)
 global RawImage;
 global WorkingImage;
 RawImage = imread(fullfile(path,fname));
-imformats('bmp')
+%imformats('bmp')
 WorkingImage = RawImage;
 setStatusToButtons(handles,'on');
 updateWorkingImage(handles);
@@ -128,6 +130,7 @@ set(hObject.rdnFreehand,'Enable',status)
 set(hObject.btnLoadAnnotations,'Enable',status);
 set(hObject.btnSegment,'Enable',status);
 set(hObject.btnSave,'Enable',status);
+set(hObject.btnCSVArea,'Enable',status);
 set(hObject.rdnContours,'Enable',status);
 set(hObject.rdnLabels,'Enable',status);
 end
@@ -144,7 +147,7 @@ if ~isempty(Annotations)
     return
 end
 global LastPath;
-[fname, path] = uigetfile({'*.png';'*.bmp'},'Open an Image File',LastPath);
+[fname, path] = uigetfile({'*.png';'*.bmp'},'Open FG/BG mask image file',LastPath);
 if isequal(fname,0)
     return
 else
@@ -245,6 +248,7 @@ Result = uint8(M);
 set(handles.textElapsedTime,'String',['Elapsed time (s): ' num2str(toc(tStart),'%.1f')]);
 updateResults(handles);
 set(handles.btnSave,'Enable','on');
+set(handles.btnCSVArea,'Enable','on');
 set(handles.rdnContours,'Enable','on');
 set(handles.rdnLabels,'Enable','on');
 end
@@ -402,7 +406,7 @@ function btnLoadAnnotations_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 global LastPath;
 global Annotations;
-[fname, path] = uigetfile({'*.png';'*.jpg';'*.bmp'},'Open an Image File',LastPath);
+[fname, path] = uigetfile({'*.png';'*.jpg';'*.bmp'},'Open annotations image file',LastPath);
 if isequal(fname,0)
     return
 else
@@ -526,12 +530,36 @@ function btnSave_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 global Result;
 global LastPath;
+global LastFName;
 cmap = getColorMap();
 if ~isempty(Result)
-    [fname,path] = uiputfile('*.png','Save Segmentation',LastPath);
+    [~,fName,~] = fileparts(LastFName);
+    [fname,path] = uiputfile('*.png','Save leaf mask',fullfile(LastPath,[fName '_leaf_mask.png']));
     if ~isequal(fname,0) && ~isequal(path,0)
         if (~isempty(fname))
             imwrite(uint8(Result),cmap,fullfile(path,fname),'png');
+        end
+    end
+end
+end
+
+% --- Executes on button press in btnCSVArea.
+function btnCSVArea_Callback(hObject, eventdata, handles)
+% hObject    handle to btnCSVArea (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+global Result;
+global LastPath;
+global LastFName;
+if ~isempty(Result)
+    [~,fName,~] = fileparts(LastFName);
+    [fname,path] = uiputfile('*.csv','Save leaf area',fullfile(LastPath,[fName '_leaf_area.csv']));
+    if ~isequal(fname,0) && ~isequal(path,0)
+        if (~isempty(fname))
+            % extract area from Result
+            stats = regionprops(Result,'Area');
+            M = [(0:numel(stats)-1)' [stats.Area]'];
+            dlmwrite(fullfile(path,fname),M(2:end,:));
         end
     end
 end
