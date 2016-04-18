@@ -11,9 +11,20 @@ function varargout = LeafAnnotationTool(varargin)
 %   Version:   1.2
 %   Date:      12/11/2015
 %
-%   Copyright (C) 2015 Pattern Recognition and Image Analysis (PRIAn) Unit,
-%   IMT Institute for Advanced Studies, Lucca, Italy.
-%   All rights reserved.
+%   Copyright (C) 2015 Massimo Minervini
+%
+%   This program is free software: you can redistribute it and/or modify
+%   it under the terms of the GNU General Public License as published by
+%   the Free Software Foundation, either version 3 of the License, or
+%   (at your option) any later version.
+%
+%   This program is distributed in the hope that it will be useful,
+%   but WITHOUT ANY WARRANTY; without even the implied warranty of
+%   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+%   GNU General Public License for more details.
+%
+%   You should have received a copy of the GNU General Public License
+%   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
